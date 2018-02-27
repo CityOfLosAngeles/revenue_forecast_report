@@ -761,8 +761,16 @@ function bubbleChart() {
     item.append('path')
       .attr('class', 'line')
       .classed('detail', true)
-      .attr('d', function (d) {return receiptsLine(myData);})
+      .attr('d', function (d) {return receiptsLine(myData.filter(function(dd) {return dd.year <= 2017}));})
       .attr('stroke', 'steelblue')
+      .attr('opacity', 1);
+
+    item.append('path')
+      .attr('class', 'line')
+      .classed('detail', true)
+      .attr('d', function (d) {return receiptsLine(myData.filter(function(dd) {return dd.year >= 2017}));})
+      .attr('stroke', 'steelblue')
+      .style("stroke-dasharray", ("3, 3"))
       .attr('opacity', 1);
 
     // Make a legend
@@ -771,11 +779,11 @@ function bubbleChart() {
       .classed('detail', true);
 
     // # of items in the legend
-    var x = graphX + graphWidth/2 - 60;
+    var x = graphX + graphWidth/2 - 80;
     var y = graphY + graphHeight + 35;
     var size = 10;
     var colors = ['black', 'steelblue'];
-    var labels = ['Budget', 'Actual'];
+    var labels = ['Budget', 'Actual + Forecast'];
     var n = colors.length;
 
     // loop to place the items
