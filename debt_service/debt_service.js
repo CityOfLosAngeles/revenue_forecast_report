@@ -95,10 +95,16 @@ d3.csv("debt_service.csv", function(d, i, columns) {
     .data(function(d) { return keys.map(function(key) { return {key: key, value: d[key]}; }); })
     .enter().append("rect")
       .attr("x", function(d) { return x1(d.key); })
-      .attr("y", function(d) { return y(d.value); })
+      .attr("y", height)
       .attr("width", x1.bandwidth())
-      .attr("height", function(d) { return height - y(d.value); })
+      .attr("height", 0)
       .attr("fill", function(d) { return z(d.key); });
+
+  d3.selectAll('rect')
+    .transition()
+    .duration(500)
+    .attr("y", function(d) {return y(d.value)})
+    .attr("height", function(d) { return height - y(d.value); });
 
   g.append("g")
       .attr("class", "axis-x0")
