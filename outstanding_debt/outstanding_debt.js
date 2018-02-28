@@ -109,12 +109,7 @@ plotData = function(error, data, dataType) {
     .attr('y', graphHeight)
     .attr('width', x.bandwidth())
     .attr('height', 0)
-    .attr('fill', 'skyblue')
-    .on('mouseenter', showFloatingTooltip)
-    .on('mouseleave', function() {
-      graph.select('.outline').remove();
-      floating_tooltip.hideTooltip();
-    });
+    .attr('fill', 'skyblue');
 
   // bar for principal
   graph.selectAll(".uBar")
@@ -125,12 +120,7 @@ plotData = function(error, data, dataType) {
     .attr("y", graphHeight)
     .attr("width", x.bandwidth())
     .attr("height", 0)
-    .attr('fill', 'steelblue')
-    .on('mouseenter', showFloatingTooltip)
-    .on('mouseleave', function() {
-      graph.select('.outline').remove();
-      floating_tooltip.hideTooltip();
-    });
+    .attr('fill', 'steelblue');
 
   // make legend
   legend = graph.append('g');
@@ -192,6 +182,25 @@ plotData = function(error, data, dataType) {
       .duration(500)
       .attr("y", function(d) { return y(d.principal / 1e6); })
       .attr("height", function(d) { return graphHeight - y(d.principal / 1e6); });
+
+
+    // add invisible bars for mouseover
+    graph.selectAll('.mouseBar')
+      .data(data)
+      .enter().append("rect")
+      .attr("class", "bar mouseBar")
+      .attr("x", function(d) { return x(d.name); })
+      .attr("y", function(d) { return 10 + y(d.total / 1e6); })
+      .attr("width", x.bandwidth())
+      .attr("height", function(d) { return 10 + graphHeight - y(d.total / 1e6); })
+      .attr('fill', 'none')
+      .attr('style','pointer-events:all')
+      .on('mouseenter', showFloatingTooltip)
+      .on('mouseleave', function() {
+        graph.select('.outline').remove();
+        floating_tooltip.hideTooltip();
+      });
+
 
   }
 

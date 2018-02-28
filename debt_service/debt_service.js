@@ -1,6 +1,7 @@
 // code mostly copied from https://bl.ocks.org/mbostock/3887051
 
 /* Initial Setup */
+var myVar;
 
 // Constants for sizing  
 var w = window,
@@ -95,10 +96,38 @@ d3.csv("debt_service.csv", function(d, i, columns) {
     .data(function(d) { return keys.map(function(key) { return {key: key, value: d[key]}; }); })
     .enter().append("rect")
       .attr("x", function(d) { return x1(d.key); })
-      .attr("y", function(d) { return y(d.value); })
+      .attr("y", height)
       .attr("width", x1.bandwidth())
-      .attr("height", function(d) { return height - y(d.value); })
+      .attr("height", 0)
       .attr("fill", function(d) { return z(d.key); });
+
+  d3.selectAll('rect')
+    .transition()
+    .duration(500)
+    .attr("y", function(d) {return y(d.value)})
+    .attr("height", function(d) { return height - y(d.value); });
+
+  // add invisible bars for mouseover
+  g.append("g")
+    .selectAll("g")
+    .data(data)
+    .enter().append("g")
+      .attr("transform", function(d) { return "translate(" + x0(d.Name) + ",0)"; })
+    .selectAll("rect")
+    .data(function(d) { return keys.map(function(key) { return {name: d.Name, key: key, value: d[key]}; }); })
+    .enter().append("rect")
+      .attr("x", function(d) { return x1(d.key); })
+      .attr("y", function(d) {return y(d.value)})
+      .attr("width", x1.bandwidth())
+      .attr("height", function(d) { return 10 + height - y(d.value); })
+      .attr("fill", function(d) { return z(d.key); })
+      .attr('fill', 'none')
+      .attr('style','pointer-events:all')
+      .on('mouseenter', showFloatingTooltip)
+      .on('mouseleave', function() {
+        g.select('.outline').remove();
+        floating_tooltip.hideTooltip();
+      });
 
   g.append("g")
       .attr("class", "axis-x0")
@@ -117,6 +146,34 @@ d3.csv("debt_service.csv", function(d, i, columns) {
       .attr("dy", "-2em")
       .attr("fill", "#000")
       .text('$ (Millions)');
+
+
+  /* tooltip for displaying data on each item */
+  var floating_tooltip = floatingTooltip('floatingTooltip', "250px");
+
+  function showFloatingTooltip(d) {
+
+    var h = y(d.value);
+
+    // outline the bar for that year
+    g.append('rect')
+      .attr('class', 'outline')
+      .attr("transform", 'translate(' + x0(d.name) + ',0)')
+      .attr('x', x1(d.key))
+      .attr('y', h)
+      .attr('width', x1.bandwidth())
+      .attr('height', height - h)
+      .attr('fill', 'none')
+      .attr('stroke', 'black')
+      .attr('stroke-width', 2);
+
+    var content = '<span class="heading"><p style="text-align: center">' + d.name + '</p></span>' +
+                  '<table><tr><td style="padding: 0px 10px 0px 20px">' + d.key + ': </td><td style="text-align: center">' + formatAmount(d.value * 1e6) + '</td></tr></table>';
+    // display tooltip
+    floating_tooltip.revealTooltip(content, d3.event);
+  }
+
+
 
   var legend = g.append("g")
       .attr('transform', 'translate(130,100)')
